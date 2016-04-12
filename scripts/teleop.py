@@ -15,6 +15,9 @@
 - [Official rospy documentation on publisher / subscribers](http://wiki.ros.org/rospy/Overview/Publishers%20and%20Subscribers)
 """
 
+import rospy
+from std_msgs.msg import String
+
 def main():
     """Publishes a movement command based on user input.
     
@@ -23,6 +26,8 @@ def main():
     robot, by publishing to this topic.
     """
     # TODO: Make this into a ROS node called 'teleop' using init_node.
+    rospy.init_node('teleop')
+
     # TODO: Create a publisher for the 'move_command' topic, of type
     # std_msgs/String. Don't forget to import the String message class.
     cmd_publisher = None

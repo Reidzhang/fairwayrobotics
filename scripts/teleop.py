@@ -30,18 +30,20 @@ def main():
 
     # TODO: Create a publisher for the 'move_command' topic, of type
     # std_msgs/String. Don't forget to import the String message class.
-    cmd_publisher = None
+    cmd_publisher = rospy.Publisher('move_command', String, queue_size=16)
     while True:
         try:
             cmd = raw_input('Movement command ("up", "down", "left", or "right"): ')
             if cmd != 'up' and cmd != 'down' and cmd != 'left' and cmd != 'right':
                 continue
             # TODO: Publish cmd onto the 'move_command' topic.
+            cmd_publisher.publish(cmd)
         except EOFError: # Exit the program on Ctrl-D.
             print
             return
 
     # TODO: Do you need to call rospy.spin()?
+    # No because of the while True
 
 if __name__ == '__main__':
     main()

@@ -35,7 +35,8 @@ def go_home(msg):
         angle = math.atan2(-position[0], -position[1])
         print "angle = " + str(angle)
         print "cur_angle = " + str(cur_angle)
-        if abs(position[0]) + abs(position[1]) < 0.1:
+        dist = math.sqrt(position[0] ** 2 + position[1] ** 2)
+        if dist < 0.1:
             # manhantan distance
             twist.linear.x = 0
             twist.angular.z = 0

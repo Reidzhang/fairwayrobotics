@@ -43,11 +43,6 @@ class NavTest():
         # initial_pose = PoseWithCovarianceStamped()
 
         # Get the initial pose from the user
-        #rospy.loginfo("*** Click the 2D Pose Estimate button in RViz to set the robot's initial pose...")
-        #rospy.wait_for_message('initialpose', PoseWithCovarianceStamped)
-        #self.last_location = Pose()
-        #rospy.Subscriber('initialpose', PoseWithCovarianceStamped, self.update_initial_pose)
-
         rospy.loginfo("Starting navigation test")
 
     def send_to_goal(self, location):

@@ -8,8 +8,6 @@ from geometry_msgs.msg import Twist
 import tf
 import math
 
-from tf.transformations import euler_from_quaternion
-
 lock = False
 point = None
 curr_quaternion = None
@@ -23,8 +21,7 @@ def writeToFile(fName, cmd, name, point, rot, radius=0):
         fName.write(",\n")
     else:
         firstFileItem = False
-
-    #fName.write("{\n")
+    # write data structure into location data file
     fName.write("\t\"" + name + "\": {\n")
     fName.write("\t\t\"x\": " + str(point[0]) + ",\n")
     fName.write("\t\t\"y\": " + str(point[1]) + ",\n")

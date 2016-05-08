@@ -7,10 +7,8 @@ import json
 import roslib; roslib.load_manifest('odometry')
 import rospy
 import actionlib
-from actionlib_msgs.msg import *
 from geometry_msgs.msg import Pose, PoseWithCovarianceStamped, Point, Quaternion, Twist
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-from random import sample
 from math import pow, sqrt
 
 class NavTest():

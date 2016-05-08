@@ -10,6 +10,7 @@ from geometry_msgs.msg import Quaternion, Pose, PoseWithCovarianceStamped, Point
 from std_msgs.msg import Header
 # bumper messege
 from kobuki_msgs.msg import BumperEvent
+from geometry_msgs.msg import Twist
 import tf
 
 class Dispense:
@@ -17,14 +18,19 @@ class Dispense:
         self.station = goal[0]
         # callback process sensor data
         self.bump_sub = rospy.Subscriber('/mobile_base/events/bumper', BumperEvent, self.processBump)
+        self.cmd_vel = rospy.Publisher('cmd_vel_mux/input/navi', Twist, queue_size=10)
 
     def processBump(self, msg):
         # send a command to arduino
         if msg.state == BumperEvent.PRESSED:
             # The bumper is pressed
             # check location
+            twist = Twist()
+            twist.linear.x = 0
+            self.cmd_vel.publish(twist)
             mapPoint, mapRot = self.getCoords()
             if self.check_pose(mapPoint, mapRot):
+
                 rospy.loginfo("Release a ball")
 
     def getCoords(self):
@@ -33,8 +39,10 @@ class Dispense:
         listener = tf.TransformListener()
         while True:
             try:
-                listener.waitForTransform("/map", "/base_link", rospy.Time(0), rospy.Duration(5.0))
-                (mapPoint, mapRot) = listener.lookupTransform("/map", "/base_link", rospy.Time(0))
+                # look for the location 3 secondes ago
+                now = rospy.Time.now() - rospy.Duration(2.0)
+                listener.waitForTransform("/map", "/base_link", now, rospy.Duration(4.0))
+                (mapPoint, mapRot) = listener.lookupTransform("/map", "/base_link", now)
                 break
             except (tf.Exception, tf.LookupException, tf.ConnectivityException):
                 continue

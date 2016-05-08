@@ -108,5 +108,9 @@ if __name__ == '__main__':
     goal = None
     while (1):
         index = raw_input("Enter an Index for location: ")
+        if index == 'exit':
+            break
         goal = locations[int(index)]
         nav.send_to_goal(locations[int(index)])
+
+    nav.shutdown()

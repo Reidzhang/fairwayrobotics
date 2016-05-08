@@ -41,10 +41,12 @@ class Dispense:
         return (mapPoint, mapRot)
 
     def check_pose(self, point, rot):
-        goal_pos = self.goal.position
-        goal_rot = self.goal.orientation
-        if goal_pos.x == point.x and goal_pos.y == point.y and goal_pos.z == point.z \
-                and goal_rot.x == rot.x and goal_rot.y == rot.y and goal_rot.z == rot.z and goal_rot.w == rot.w:
+        goal_pos = self.station.position
+        goal_rot = self.station.orientation
+        print goal_pos
+        print point
+        if goal_pos.x == point[0] and goal_pos.y == point[1] and goal_pos.z == point[2] \
+                and goal_rot.x == rot[0] and goal_rot.y == rot[1] and goal_rot.z == rot[2] and goal_rot.w == rot[3]:
             return True
         return False
 

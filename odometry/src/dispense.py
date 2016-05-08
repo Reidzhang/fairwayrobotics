@@ -8,30 +8,27 @@ import json
 import rospy
 from geometry_msgs.msg import Quaternion, Pose, PoseWithCovarianceStamped, Point, Vector3, PoseStamped
 from std_msgs.msg import Header
-# bumper messege
-from kobuki_msgs.msg import BumperEvent
-from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+from math import sqrt
+import time
 import tf
 
 class Dispense:
     def __init__(self, goal):
         self.station = goal[0]
         # callback process sensor data
-        self.bump_sub = rospy.Subscriber('/mobile_base/events/bumper', BumperEvent, self.processBump)
-        self.cmd_vel = rospy.Publisher('cmd_vel_mux/input/navi', Twist, queue_size=10)
+        self.bump_sub = rospy.Subscriber('/urg_scan', LaserScan, self.processSensor, queue_size=1)
 
-    def processBump(self, msg):
+
+    def processSensor(self, msg):
         # send a command to arduino
-        if msg.state == BumperEvent.PRESSED:
-            # The bumper is pressed
-            # check location
-            twist = Twist()
-            twist.linear.x = 0
-            self.cmd_vel.publish(twist)
-            mapPoint, mapRot = self.getCoords()
-            if self.check_pose(mapPoint, mapRot):
-
-                rospy.loginfo("Release a ball")
+        # The bumper is pressed
+        # check location
+        for i in range(0, 100):
+            if msg.ranges[490 + i] < 0.3 and msg.ranges[490 + i] > msg.range_min:
+                print "Release a ball"
+                rospy.sleep(2.0)
+                break
 
     def getCoords(self):
         mapPoint = None
@@ -51,12 +48,16 @@ class Dispense:
     def check_pose(self, point, rot):
         goal_pos = self.station.position
         goal_rot = self.station.orientation
-        print goal_pos
-        print point
-        if goal_pos.x == point[0] and goal_pos.y == point[1] and goal_pos.z == point[2] \
-                and goal_rot.x == rot[0] and goal_rot.y == rot[1] and goal_rot.z == rot[2] and goal_rot.w == rot[3]:
+        dis = self.cal_dist(goal_pos, point)
+        if dis < 0.1:
             return True
+
         return False
+
+    def cal_dist(self, goal, point):
+        a = (goal.x, goal.y, goal.z)
+        b = (point[0], point[1], point[2])
+        return sqrt(sum( (a - b) ** 2 for a, b in zip(a, b)))
 
 if __name__ == '__main__':
     rospy.init_node('ball_dispence', anonymous=True)

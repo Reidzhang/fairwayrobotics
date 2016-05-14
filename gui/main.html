@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>RangeRovr: Main</title>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <script type="text/javascript">
+      var stationNumber;
+      var basketCount;
+      window.onload = function() {
+        var requestButton = document.getElementById("requestButton")
+                                    .addEventListener('click', toMovingPage, false);
+
+        var params = location.search.substring(1).split('&');
+        stationNumber = params[0].split('=')[1];
+        basketCount = params[1].split('=')[1]
+
+        var stationText = document.getElementById('stationText');
+        stationText.innerHTML = 'Station ' + stationNumber;
+
+        var basketNumText = document.getElementById('basketNumText');
+        basketNumText.innerHTML = 'Basket ' + basketCount;
+      }
+
+      var toMovingPage = function() {
+        basketCount++;
+        location.href = "../moving.html?station=" + stationNumber + "&basket=" + basketCount;
+      };
+    </script>
+  </head>
+    
+  <body>
+    <div id="stationText">
+    </div>
+    <div id="basketNumText">
+    </div>
+    <button id="requestButton" type="button">Get More Balls</button>
+  </body>
+</html>

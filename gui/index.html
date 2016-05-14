@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>RangeRovr</title>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <script type="text/javascript">
+      window.onload = function() {
+        var stationButtons = document.getElementsByClassName("stationButton");
+
+        for (var i = 0; i < stationButtons.length; i++) {
+          stationButtons[i].addEventListener('click', function() {
+            toMainPage(this);
+          }, false);
+        }
+      }
+
+      var toMainPage = function(button) {
+        // TODO: use button.getAttribute('location') to save location;
+        location.href = "../main.html?station=" + button.getAttribute('value') + "&basket=1";
+      };
+    </script>
+  </head>
+    
+  <body>
+    <div id="temp">
+      <div>
+        Select a station:
+      </div>
+      <button class="stationButton" type="button" value=1 location='(1, 2, 3)'>Station 1</button>
+      <button class="stationButton" type="button" value=2 location='(4, 5, 6)'>Station 2</button>
+      <button class="stationButton" type="button" value=3 location='(7, 8, 9)'>Station 3</button>
+    </div>
+  </body>
+</html>

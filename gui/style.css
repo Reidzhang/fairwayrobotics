@@ -1,0 +1,19 @@
+/* INDEX.HTML */
+.stationButton {
+    vertical-align: middle;
+    display: block;
+    margin: 5px;
+}
+
+/*html {
+    display: table;
+    margin: auto;
+    vertical-align: middle;
+}*/
+
+/* MAIN.HTML */
+#stationText {
+    vertical-align: middle;
+    display: block;
+    margin: 5px;
+}

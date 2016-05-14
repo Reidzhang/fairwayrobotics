@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>RangeRovr: Main</title>
+    <script type="text/javascript">
+      var stationNumber;
+      var basketCount;
+      window.onload = function() {
+        var mainPageButton = document.getElementById("mainPage")
+                                    .addEventListener('click', toMainPage, false);
+
+        var params = location.search.substring(1).split('&');
+        stationNumber = params[0].split('=')[1];
+        basketCount = params[1].split('=')[1]
+      }
+
+      var toMainPage = function() {
+        location.href = "../main.html?station=" + stationNumber + "&basket=" + basketCount;
+      };
+    </script>
+  </head>
+    
+  <body>
+    <div>
+      On a mission...
+    </div>
+    <button id="mainPage" type="button">Temp: Go back to main</button>
+  </body>
+</html>

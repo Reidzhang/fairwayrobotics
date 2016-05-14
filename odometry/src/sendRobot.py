@@ -86,7 +86,6 @@ class NavTest():
 
 if __name__ == '__main__':
     rospy.init_node('annotateMap', anonymous=True)
-    # rospy.Subscriber('robot_pose_ekf/odom_combined', PoseWithCovarianceStamped, processPose)
     with open('pose-map.json', 'r') as dFile:
         data = json.loads(dFile.read())
     # now we have the data

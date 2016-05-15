@@ -2,7 +2,27 @@
 .stationButton {
     vertical-align: middle;
     display: block;
-    margin: 5px;
+    margin: 20px;
+    border-radius: 5px;
+    border: 0;
+    width: 80px;
+    height:25px;
+    font-family: Tahoma;
+    background: #E0FFFF;
+
+    
+}
+
+.requestButton {
+	vertical-align: middle;
+    display: block;
+    margin: 20px;
+    border-radius: 5px;
+    border: 0;
+    width: 80px;
+    height:25px;
+    font-family: Tahoma;
+    background: #E0FFFF;
 }
 
 /*html {
@@ -15,5 +35,7 @@
 #stationText {
     vertical-align: middle;
     display: block;
-    margin: 5px;
+    margin: 10px;
+    font-family: Tahoma;
+
 }

@@ -1,26 +1,25 @@
 <!DOCTYPE HTML>
 <html>
+<body bgcolor="#ADD8E6">
+
   <head>
     <title>RangeRovr: Main</title>
     <link rel="stylesheet" type="text/css" href="style.css"/>
     <script type="text/javascript">
       var stationNumber;
       var basketCount;
+      var stationButtons = document.getElementsByClassName("stationButton");
       window.onload = function() {
         var requestButton = document.getElementById("requestButton")
                                     .addEventListener('click', toMovingPage, false);
-
         var params = location.search.substring(1).split('&');
         stationNumber = params[0].split('=')[1];
         basketCount = params[1].split('=')[1]
-
         var stationText = document.getElementById('stationText');
         stationText.innerHTML = 'Station ' + stationNumber;
-
         var basketNumText = document.getElementById('basketNumText');
-        basketNumText.innerHTML = 'Basket ' + basketCount;
+        basketNumText.innerHTML = 'Basket ' + "( " + basketCount + " )";
       }
-
       var toMovingPage = function() {
         basketCount++;
         location.href = "../moving.html?station=" + stationNumber + "&basket=" + basketCount;
@@ -29,10 +28,13 @@
   </head>
     
   <body>
-    <div id="stationText">
+    <font size = "12" face="tahoma" color="black"><center><div id="stationText"></center></font>
     </div>
-    <div id="basketNumText">
+    <center><button id="requestButton" class="stationButton" type="button" style="width:300px;height:150px;background-color:#E0FFFF"><font size = "6">Get More Balls</button></center></font>
+    <font size = "6" face="verdana" color="black"><center><div id="basketNumText"></center></font>
+    <p>&nbsp;</p>
+    <p></p>
     </div>
-    <button id="requestButton" type="button">Get More Balls</button>
   </body>
+</body>
 </html>

@@ -8,37 +8,46 @@
 		<script type="text/javascript" src="http://cdn.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
 		<script type="text/javascript" src="http://cdn.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
     <script type="text/javascript">
-			  // Connecting to ROS
-  			// -----------------
+		  // Connecting to ROS
+			// -----------------
 
-				var ros = new ROSLIB.Ros({
-					url : 'ws://localhost:9090'
+			var ros = new ROSLIB.Ros({
+				url : 'ws://localhost:9090'
+			});
+
+		  ros.on('connection', function() {
+  			console.log('Connected to websocket server.');
+			});
+
+		 		ros.on('error', function(error) {
+  			console.log('Error connecting to websocket server: ', error);
+			});
+
+			ros.on('close', function() {
+  			console.log('Connection to websocket server closed.');
+			});
+
+
+		  var ballRequestPublisher = new ROSLIB.Topic({
+  			ros : ros,
+  			name : '/request_balls',
+  			messageType : 'std_msgs/Empty'
 				});
 
-			  ros.on('connection', function() {
-    			console.log('Connected to websocket server.');
-  			});
-
- 		 		ros.on('error', function(error) {
-    			console.log('Error connecting to websocket server: ', error);
-  			});
-
-  			ros.on('close', function() {
-    			console.log('Connection to websocket server closed.');
-  			});
-
-
-			 var ballRequestPublisher = new ROSLIB.Topic({
-    			ros : ros,
-    			name : '/request_balls',
-    			messageType : 'std_msgs/Empty'
- 				});
+      var finishedPublisher = new ROSLIB.Topic({
+        ros : ros,
+        name : '/finished',
+        messageType : 'std_msgs/Empty'
+      });
 
       var stationNumber;
       var basketCount;
       window.onload = function() {
         var requestButton = document.getElementById("requestButton")
                                     .addEventListener('click', toMovingPage, false);
+
+        var finishButton = document.getElementById("finishButton")
+                                    .addEventListener('click', toFinishPage, false);
 
         var params = location.search.substring(1).split('&');
         stationNumber = params[0].split('=')[1];
@@ -52,17 +61,28 @@
       }
 
       var toMovingPage = function() {
-				 	// TODO: use button.getAttribute('location') to save location;
-					var ballRequestMessage = new ROSLIB.Message({});
+				var ballRequestMessage = new ROSLIB.Message({});
 
-					ballRequestPublisher.publish(ballRequestMessage);
-					console.log('ballRequestPublisher');
-					console.log(ballRequestPublisher);
-				
-        	basketCount++;
-					setTimeout(function() {
-						location.href = "../gui/moving.html?station=" + stationNumber + "&basket=" + basketCount;
-					}, 100);
+				ballRequestPublisher.publish(ballRequestMessage);
+				console.log('ballRequestPublisher');
+				console.log(ballRequestPublisher);
+			
+      	basketCount++;
+				setTimeout(function() {
+					location.href = "../gui/moving.html?station=" + stationNumber + "&basket=" + basketCount;
+				}, 100);
+      };
+
+      var toFinishPage = function() {
+        var finishedMessage = new ROSLIB.Message({});
+
+        finishedPublisher.publish(finishedMessage);
+        console.log('finishedPublisher');
+        console.log(finishedPublisher);
+      
+        setTimeout(function() {
+          location.href = "../gui/finish.html?station=" + stationNumber + "&basket=" + basketCount;
+        }, 100);
       };
     </script>
   </head>
@@ -73,5 +93,6 @@
     <div id="basketNumText">
     </div>
     <button id="requestButton" type="button">Get More Balls</button>
+    <button id="finishButton" type="button">Finish</button>
   </body>
 </html>

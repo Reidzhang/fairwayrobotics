@@ -9,49 +9,45 @@
 		<script type="text/javascript" src="http://cdn.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
 
     <script type="text/javascript" type="text/javascript">
-			  // Connecting to ROS
-  			// -----------------
+		  // Connecting to ROS
+			// -----------------
 
-				var ros = new ROSLIB.Ros({
-					url : 'ws://localhost:9090'
+			var ros = new ROSLIB.Ros({
+				url : 'ws://localhost:9090'
+			});
+
+		  ros.on('connection', function() {
+  			console.log('Connected to websocket server.');
+			});
+
+		 		ros.on('error', function(error) {
+  			console.log('Error connecting to websocket server: ', error);
+			});
+
+			ros.on('close', function() {
+  			console.log('Connection to websocket server closed.');
+			});
+
+			// Subscribing to a Topic
+			// ----------------------
+
+			var stationLocationPublisher = new ROSLIB.Topic({
+  			ros : ros,
+  			name : '/choose_station',
+  			messageType : 'std_msgs/Int8'
 				});
 
-			  ros.on('connection', function() {
-    			console.log('Connected to websocket server.');
-  			});
+	    window.onload = function() {
+      	var stationButtons = document.getElementsByClassName("stationButton");
 
- 		 		ros.on('error', function(error) {
-    			console.log('Error connecting to websocket server: ', error);
-  			});
-
-  			ros.on('close', function() {
-    			console.log('Connection to websocket server closed.');
-  			});
-
-  			// Subscribing to a Topic
-  			// ----------------------
-
-  			var stationLocationPublisher = new ROSLIB.Topic({
-    			ros : ros,
-    			name : '/choose_station',
-    			messageType : 'std_msgs/Int8'
- 				});
-
-	  		//dispenseListener.subscribe(function(message) {
-    		//	console.log('Received message on ' + dispenseListener.name + ': ' + message.data);
-  			//});
-		    window.onload = function() {
-        	var stationButtons = document.getElementsByClassName("stationButton");
-
-        	for (var i = 0; i < stationButtons.length; i++) {
-          	stationButtons[i].addEventListener('click', function() {
-            	toMainPage(this);
-          	}, false);
-        	}
+      	for (var i = 0; i < stationButtons.length; i++) {
+        	stationButtons[i].addEventListener('click', function() {
+          	toMainPage(this);
+        	}, false);
+      	}
       }
 
       var toMainPage = function(button) {
-        // TODO: use button.getAttribute('location') to save location;
 				var stationNum = button.getAttribute('value');
 				var stationLocationMessage = new ROSLIB.Message({
 					data: parseInt(stationNum)

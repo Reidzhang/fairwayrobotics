@@ -23,7 +23,7 @@ class NavTest():
                        'LOST']
 
         # Publisher to manually control the robot (e.g. to stop it)
-        self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist)
+        self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=5)
         self.type = 'P'
         self.location = []
         # Subscribe to the move_base action server
@@ -85,7 +85,7 @@ class NavTest():
 
 
 if __name__ == '__main__':
-    rospy.init_node('annotateMap', anonymous=True)
+    rospy.init_node('sendRobot', anonymous=True)
     with open('pose-map.json', 'r') as dFile:
         data = json.loads(dFile.read())
     # now we have the data

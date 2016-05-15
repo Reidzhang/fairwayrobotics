@@ -4,20 +4,63 @@
   <head>
     <title>RangeRovr</title>
     <link rel="stylesheet" type="text/css" href="style.css"/>
-    <script type="text/javascript">
-      window.onload = function() {
-        var stationButtons = document.getElementsByClassName("stationButton");
+		<meta charset="utf-8" />
 
-        for (var i = 0; i < stationButtons.length; i++) {
-          stationButtons[i].addEventListener('click', function() {
-            toMainPage(this);
-          }, false);
-        }
+		<script type="text/javascript" src="http://cdn.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+		<script type="text/javascript" src="http://cdn.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+
+    <script type="text/javascript" type="text/javascript">
+		  // Connecting to ROS
+			// -----------------
+
+			var ros = new ROSLIB.Ros({
+				url : 'ws://localhost:9090'
+			});
+
+		  ros.on('connection', function() {
+  			console.log('Connected to websocket server.');
+			});
+
+		 		ros.on('error', function(error) {
+  			console.log('Error connecting to websocket server: ', error);
+			});
+
+			ros.on('close', function() {
+  			console.log('Connection to websocket server closed.');
+			});
+
+			// Subscribing to a Topic
+			// ----------------------
+
+			var stationLocationPublisher = new ROSLIB.Topic({
+  			ros : ros,
+  			name : '/choose_station',
+  			messageType : 'std_msgs/Int8'
+				});
+
+	    window.onload = function() {
+      	var stationButtons = document.getElementsByClassName("stationButton");
+
+      	for (var i = 0; i < stationButtons.length; i++) {
+        	stationButtons[i].addEventListener('click', function() {
+          	toMainPage(this);
+        	}, false);
+      	}
       }
 
       var toMainPage = function(button) {
         // TODO: use button.getAttribute('location') to save location;
-        location.href = "../main.html?station=" + button.getAttribute('value') + "&basket=1";
+				var stationNum = button.getAttribute('value');
+				var stationLocationMessage = new ROSLIB.Message({
+					data: parseInt(stationNum)
+				});
+
+				stationLocationPublisher.publish(stationLocationMessage);
+				console.log(stationLocationPublisher);
+
+        setTimeout(function() {
+					location.href = "../gui/main.html?station=" + stationNum + "&basket=1";
+				}, 100);
       };
     </script>
   </head>
@@ -32,5 +75,4 @@
       <center><button class="stationButton" type="button" value=3 location='(7, 8, 9)' style="width:200px;height:100px;"><font size = "5">Station 3</font></button></center>
     </div>
   </body>
-</body>
 </html>

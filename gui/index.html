@@ -14,7 +14,8 @@
 			// -----------------
 
 			var ros = new ROSLIB.Ros({
-				url : 'ws://localhost:9090'
+				// url : 'ws://loggerhead.cs.washington.edu:9090'
+ 				url : 'ws://localhost:9090'
 			});
 
 		  ros.on('connection', function() {
@@ -53,12 +54,12 @@
 				var stationLocationMessage = new ROSLIB.Message({
 					data: parseInt(stationNum)
 				});
-
-				stationLocationPublisher.publish(stationLocationMessage);
+        for (var i = 0; i < 1; i++) 
+					stationLocationPublisher.publish(stationLocationMessage);
 				console.log(stationLocationPublisher);
 
         setTimeout(function() {
-					location.href = "../gui/main.html?station=" + stationNum + "&basket=1";
+					location.href = "./main.html?station=" + stationNum + "&basket=1";
 				}, 100);
       };
     </script>

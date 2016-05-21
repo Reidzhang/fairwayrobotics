@@ -38,7 +38,32 @@
   			messageType : 'std_msgs/Int8'
 				});
 
+      var ballRequestPublisher = new ROSLIB.Topic({
+        ros : ros,
+        name : '/request_balls',
+        messageType : 'std_msgs/Empty'
+        });
+
+      var finishedPublisher = new ROSLIB.Topic({
+        ros : ros,
+        name : '/finished',
+        messageType : 'std_msgs/Empty'
+      });
+
+      var donePublisher = new ROSLIB.Topic({
+        ros : ros,
+        name : '/done',
+        messageType : 'std_msgs/Empty'
+      });
+
+      //console.log(document.getElementById("mainPage"));
+      //document.getElementById("mainPage").style.display = 'none';
+
+      var stationNumber;
+      var basketCount;
+
 	    window.onload = function() {
+        // Add button onclick listeners
       	var stationButtons = document.getElementsByClassName("stationButton");
 
       	for (var i = 0; i < stationButtons.length; i++) {
@@ -46,32 +71,147 @@
           	toMainPage(this);
         	}, false);
       	}
+
+        addClickListener("requestButton", toMovingPage);
+        addClickListener("finishButton", toFinishPage);
+        addClickListener("doneButton", toIndexPage);
+        addClickListener("mainPageButton", toMainPageFromMove);
+      }
+
+      var addClickListener = function(id, callback) {
+        document.getElementById(id).addEventListener('click', callback, false);
       }
 
       var toMainPage = function(button) {
-				var stationNum = button.getAttribute('value');
+				stationNumber = button.getAttribute('value');
+        basketCount = 1;
+
+        // Publish station number selected message
 				var stationLocationMessage = new ROSLIB.Message({
-					data: parseInt(stationNum)
+					data: parseInt(stationNumber)
 				});
+				stationLocationPublisher.publish(stationLocationMessage);    
+        
+        // Set main page text for station number and number baskets used
+        var stationText = document.getElementById('mainStationNumberText');
+        stationText.innerHTML = 'Station ' + stationNumber;
 
-				stationLocationPublisher.publish(stationLocationMessage);
-				console.log(stationLocationPublisher);
+        var basketNumText = document.getElementById('mainBasketCountText');
+        basketNumText.innerHTML = 'Basket ' + "( " + basketCount + " )";
 
-        setTimeout(function() {
-					location.href = "../gui/main.html?station=" + stationNum + "&basket=1";
-				}, 100);
+        // Hide index page, show main page
+        document.getElementById("indexPage").style.display = 'none';
+        document.getElementById("mainPage").style.display = 'inline';
+      };
+
+      var toMovingPage = function() {
+        // Publish ball requested message
+        var ballRequestMessage = new ROSLIB.Message({});
+        ballRequestPublisher.publish(ballRequestMessage);
+        
+        // Hide main page, show moving page
+        document.getElementById("mainPage").style.display = 'none';
+        document.getElementById("movingPage").style.display = 'inline';
+      };
+
+      var toFinishPage = function() {
+        // Publish finished message
+        var finishedMessage = new ROSLIB.Message({});
+        finishedPublisher.publish(finishedMessage);
+        
+        // Set finish page text for station number and number baskets used
+        var stationText = document.getElementById('finishStationNumberText');
+        stationText.innerHTML = 'Station Number: ' + stationNumber;
+
+        var basketText = document.getElementById('finishBasketCountText');
+        basketText.innerHTML = 'Baskets Used: ' + basketCount;
+
+        // Hide main page, show finish page
+        document.getElementById("mainPage").style.display = 'none';
+        document.getElementById("finishPage").style.display = 'inline';
+      };
+
+      var toIndexPage = function() {
+        // Publish done message
+        var doneMessage = new ROSLIB.Message({});
+        donePublisher.publish(doneMessage);
+        
+        // Hide finish page, show index page
+        document.getElementById("finishPage").style.display = 'none';
+        document.getElementById("indexPage").style.display = 'inline';
+      };
+
+      var toMainPageFromMove = function() {
+        // Update number of baskets used
+        basketCount++;
+
+        // Update main page text to show new number of baskets used
+        var basketNumText = document.getElementById('mainBasketCountText');
+        basketNumText.innerHTML = 'Basket ' + "( " + basketCount + " )";
+
+        // Hide moving page, show main page
+        document.getElementById("movingPage").style.display = 'none';
+        document.getElementById("mainPage").style.display = 'inline';
       };
     </script>
   </head>
     
   <body>
-    <div id="temp">
-      <div>
-        <font size = "10" face="verdana" color="black"><center>Select a station:</center></font>
-      </div> 
-      <center><button class="stationButton" type="button" value=1 location='(1, 2, 3)' style="width:200px;height:100px;background-color:#E0FFFF"><font size = "5">Station 1</font></button></center>
-      <center><button class="stationButton" type="button" value=2 location='(4, 5, 6)' style="width:200px;height:100px;"><font size = "5">Station 2</font></button></center>
-      <center><button class="stationButton" type="button" value=3 location='(7, 8, 9)' style="width:200px;height:100px;"><font size = "5">Station 3</font></button></center>
+    <div id="indexPage">
+      <center>
+        <div class="titleText">
+          Select a station:
+        </font>
+        <button class="stationButton button" type="button" value=1>
+          Station 1
+        </button>
+        <button class="stationButton button" type="button" value=2>
+          Station 2
+        </button>
+        <button class="stationButton button" type="button" value=3>
+          Station 3
+        </button>
+      </center>
+    </div>
+
+    <div id="mainPage">
+      <center>       
+        <div id="mainStationNumberText" class="titleText"></div>   
+        <div id="mainBasketCountText" class="infoText"></div>
+
+        <button id="requestButton" class="button" type="button">
+          Get More Balls
+        </button>
+        <button id="finishButton" class="button" type="button">
+          Finish
+        </button>
+      </center>
+    </div>
+
+    <div id="movingPage">
+      <center>
+        <div class="titleText">
+          On a mission...
+        </div>
+        <button id="mainPageButton" class="button" type="button">
+          Temp: Go back to main
+        </button>
+      </center>
+    </div>
+
+    <div id="finishPage">
+      <center>
+
+        <div class="titleText">Thanks for playing and have a fantastic day!</div>
+        <br>
+
+        <div id="finishStationNumberText" class="infoText"></div>
+        <div id="finishBasketCountText" class="infoText"></div>
+      
+        <button id="doneButton" class="button" type="button">
+          Done
+        </button>
+      </center>
     </div>
   </body>
 </html>

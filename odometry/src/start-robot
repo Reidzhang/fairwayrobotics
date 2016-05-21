@@ -11,3 +11,7 @@ roslaunch turtlebot_rviz_launchers view_navigation.launch --screen
 roslaunch kobuki_keyop keyop.launch
 
 rosrun urg_node urg_node scan:=/urg_scan
+
+
+// IMPORTANT: Need to run the following command on the robot
+roslaunch rosbridge_server rosbridge_websocket.launch

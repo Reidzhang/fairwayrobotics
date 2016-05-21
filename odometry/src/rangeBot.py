@@ -53,9 +53,9 @@ def main():
 
     nav = NavTest()
 
-    rospy.Subscriber('/finish', Empty, finish, queue_size=1)
+    rospy.Subscriber('/finished', Empty, finish, queue_size=1)
 
-    currentState = 'Station'
+    # currentState = 'Station'
 
     while(1):
         if currentState == 'Dispenser':

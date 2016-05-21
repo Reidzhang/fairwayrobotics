@@ -11,7 +11,7 @@
     <script type="text/javascript" src="http://cdn.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
     <script type="text/javascript">
       var ros = new ROSLIB.Ros({
-        url : 'ws://localhost:9090'
+        url : 'ws://loggerhead.cs.washington.edu:9090'
       });
 
       ros.on('connection', function() {
@@ -57,7 +57,7 @@
         console.log(donePublisher);
 
         setTimeout(function() {
-          location.href = "../gui/index.html";
+          location.href = "./index.html";
         }, 100);
       };
     </script>

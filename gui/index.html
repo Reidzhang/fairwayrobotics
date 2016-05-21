@@ -57,8 +57,11 @@
         messageType : 'std_msgs/Empty'
       });
 
-      //console.log(document.getElementById("mainPage"));
-      //document.getElementById("mainPage").style.display = 'none';
+      var backToMainSubscriber = new ROSLIB.Topic({
+        ros : ros,
+        name : '/at_home',
+        messageType : 'std_msgs/Empty'
+      });
 
       var stationNumber;
       var basketCount;
@@ -109,6 +112,14 @@
         // Publish ball requested message
         var ballRequestMessage = new ROSLIB.Message({});
         ballRequestPublisher.publish(ballRequestMessage);
+
+        // Set up subscriber to listen for message that
+        // robot is back at station
+        backToMainSubscriber.subscribe(function(message) {
+          console.log('Received message on ' + backToMainSubscriber.name + ': ' + message.data);
+          toMainPageFromMove();
+          listener.unsubscribe();
+        });
         
         // Hide main page, show moving page
         document.getElementById("mainPage").style.display = 'none';

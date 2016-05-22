@@ -115,6 +115,7 @@
 
         // Set up subscriber to listen for message that
         // robot is back at station
+				// TO DO: Move it somewhere else
         backToMainSubscriber.subscribe(function(message) {
           console.log('Received message on ' + backToMainSubscriber.name + ': ' + message.data);
           toMainPageFromMove();

@@ -6,18 +6,23 @@
 
 import json
 import rospy
-from std_msgs.msg import Int8, Empty, String
-from geometry_msgs.msg import Pose, PoseWithCovarianceStamped, Point, Quaternion, Twist
+import threading
+from std_msgs.msg import Int8, Empty, Float32
+from geometry_msgs.msg import Pose, Point, Quaternion
 from sendRobot import NavTest
 from dispense import Dispense
+from actionlib import GoalStatus
 import time
-import tf
+
 
 currentState = 'Dispenser'
+weight = 'Empty'
+lock = threading.Lock()
 
 def main():
     rospy.init_node('rangeBot', anonymous=True)
     global currentState
+    global weight
     with open('pose-map.json', 'r') as dFile:
         data = json.loads(dFile.read())
     # now we have the data
@@ -49,21 +54,22 @@ def main():
     # 3. Integrate the scale
     # Another two types of messages: '/finish', '/request_balls'
     # states = ['Dispenser', 'Station', 'MovingToStation', 'MovingToDispenser', 'Empty', 'Filled', 'Finish']
-    weight = 'Filled'
 
     nav = NavTest()
 
     rospy.Subscriber('/finished', Empty, finish, queue_size=1)
-
     # currentState = 'Station'
-
     while(1):
         if currentState == 'Dispenser':
-            while weight != 'Filled':
-                # TO-DO: check the scale
-                pass
-            nav.send_to_goal(station_pos)
+            weightSubscriber = rospy.Subscriber('weight', Float32, callback=processWeight)
+            while lock.acquire() and weight != 'Filled':
+                lock.release()
+
+            rospy.sleep(1)
+            # nav.send_to_goal(station_pos)
             currentState = 'MovingToStation'
+            weightSubscriber.unregister()
+            print currentState
 
         elif currentState == 'Station':
             disp = Dispense()
@@ -73,10 +79,29 @@ def main():
             # request more balls
         elif currentState == 'MovingToStation':
             # check our status
-            pass
+            if nav.move_base.get_state() == GoalStatus.SUCCEEDED:
+                currentState = 'Station'
+                pub = rospy.Publisher('at_home', Empty, queue_size=1)
+                rate = rospy.Rate(10)
+                time.sleep(5)
+                pub.publish(Empty())
+            elif nav.move_base.get_state() == GoalStatus.ABORTED:
+                # resent goal if abort
+                nav.move_base.cancel_goal()
+                nav.send_to_goal(station_pos)
+            else:
+                continue
         elif currentState == 'MovingToDispenser':
-            # check our status
             pass
+            # check our status
+            if nav.move_base.get_state() == GoalStatus.SUCCEEDED:
+                currentState = 'Dispenser'
+                weight = 'Empty'
+            elif nav.move_base.get_state() == GoalStatus.ABORTED:
+                nav.move_base.cancel_goal()
+                nav.send_to_goal(dispenser_pos)
+            else:
+                continue
         else:
             # finish
             break
@@ -84,6 +109,14 @@ def main():
 def finish(msg):
     global currentState
     currentState = 'Finish'
+
+def processWeight(msg):
+    global weight
+    if msg.data >= 16.2:
+        print 'Basket filled'
+        lock.acquire()
+        weight = 'Filled'
+        lock.release()
 
 
 if __name__ == '__main__':

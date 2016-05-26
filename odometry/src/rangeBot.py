@@ -14,10 +14,9 @@ from dispense import Dispense
 from actionlib import GoalStatus
 import time
 
-
 currentState = 'Dispenser'
 weight = 'Empty'
-lock = threading.Lock()
+wLock = threading.Lock()
 
 def main():
     rospy.init_node('rangeBot', anonymous=True)
@@ -57,13 +56,13 @@ def main():
 
     nav = NavTest()
 
-    rospy.Subscriber('/finished', Empty, finish, queue_size=1)
     # currentState = 'Station'
-    while(1):
+    while (1):
+        print 'Current state = ' + currentState
         if currentState == 'Dispenser':
             weightSubscriber = rospy.Subscriber('weight', Float32, callback=processWeight)
-            while lock.acquire() and weight != 'Filled':
-                lock.release()
+            while wLock.acquire() and weight != 'Filled':
+                wLock.release()
 
             rospy.sleep(1)
             # nav.send_to_goal(station_pos)
@@ -73,9 +72,16 @@ def main():
 
         elif currentState == 'Station':
             disp = Dispense()
-            tmp_msg = rospy.wait_for_message('/request_balls', Empty)
-            print 'tmp_msg'
-            print tmp_msg
+            req_sub = rospy.Subscriber('/request_balls', Empty, callback=refill_balls)
+            finish_sub = rospy.Subscriber('/finished', Empty, finish, queue_size=1)
+            # tmp_msg = rospy.wait_for_message('/request_balls', Empty)
+
+            while 1:
+                if currentState != 'Station':
+                    break
+
+            req_sub.unregister()
+            finish_sub.unregister()
             # request more balls
         elif currentState == 'MovingToStation':
             # check our status
@@ -92,7 +98,6 @@ def main():
             else:
                 continue
         elif currentState == 'MovingToDispenser':
-            pass
             # check our status
             if nav.move_base.get_state() == GoalStatus.SUCCEEDED:
                 currentState = 'Dispenser'
@@ -106,17 +111,24 @@ def main():
             # finish
             break
 
+
+def refill_balls(msg):
+    global currentState
+    currentState = 'MovingToDispenser'
+
+
 def finish(msg):
     global currentState
     currentState = 'Finish'
+
 
 def processWeight(msg):
     global weight
     if msg.data >= 16.2:
         print 'Basket filled'
-        lock.acquire()
+        wLock.acquire()
         weight = 'Filled'
-        lock.release()
+        wLock.release()
 
 
 if __name__ == '__main__':

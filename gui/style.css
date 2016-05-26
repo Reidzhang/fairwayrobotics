@@ -29,6 +29,6 @@
     color: black;
 }
 
-#mainPage, #movingPage, #finishPage {
+#mainPage, #movingPage, #finishPage, #pleaseMovePage, #missionAbortPage {
     display: none;
 }

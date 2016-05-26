@@ -8,7 +8,6 @@ import gtk
 from sys import exit
 import math
 
-
 # USPS 75lb scale (doesn't work yet...)
 VENDOR_ID = 0x2474
 PRODUCT_ID = 0x0550
@@ -17,7 +16,7 @@ PRODUCT_ID = 0x0550
 dev = usb.core.find(idVendor=VENDOR_ID,
                        idProduct=PRODUCT_ID)
 
-def main():
+def main(f_d):
     try:
         # was it found?
         if dev is None:
@@ -46,7 +45,7 @@ def main():
                 # dev.attach_kernel_driver(interface)
                 # print "all done"
 
-            listen()
+            listen(f_d)
 
     except KeyboardInterrupt as e:
         print "\nquitting"
@@ -79,7 +78,7 @@ def grab():
         print "IndexError: " + str(e.args)
 
 
-def listen():
+def listen(f_d):
     DATA_MODE_GRAMS = 2
     DATA_MODE_OUNCES = 11
 
@@ -115,12 +114,13 @@ def listen():
                 grams = raw_weight
                 weight = math.ceil(grams)
                 print_weight = "%s g" % grams
-
-            print "stable weight: " + print_weight
-
-            clipboard = gtk.clipboard_get()
-            clipboard.set_text(str(weight))
-            clipboard.store()
+            print print_weight
+            f_d.write(str(ounces))
+            f_d.write('\n')
+            f_d.flush()
+            # clipboard = gtk.clipboard_get()
+            # clipboard.set_text(str(weight))
+            # clipboard.store()
 
 
 def probe():
@@ -135,4 +135,5 @@ def probe():
 
 #probe()
 if __name__ == '__main__':
-    main()
+    with open('weight.txt', 'w', os.O_NONBLOCK) as f:
+        main(f)

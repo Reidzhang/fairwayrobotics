@@ -3,7 +3,8 @@
 
 var ros = new ROSLIB.Ros({
 	// url : 'ws://loggerhead.cs.washington.edu:9090'
-		url : 'ws://localhost:9090'
+	url : 'ws://localhost:9090'
+	//url : 'ws://leatherback.cs.washington.edu:9090'
 });
 
 ros.on('connection', function() {
@@ -47,7 +48,7 @@ var donePublisher = new ROSLIB.Topic({
 
 var backToMainSubscriber = new ROSLIB.Topic({
   ros : ros,
-  name : '/at_home',
+  name : '/at_station',
   messageType : 'std_msgs/Empty'
 });
 
@@ -60,6 +61,12 @@ var pleaseMoveSubscriber = new ROSLIB.Topic({
 var missionAbortedSubscriber = new ROSLIB.Topic({
   ros : ros,
   name : '/mission_abort',
+  messageType : 'std_msgs/Empty'
+});
+
+var pleaseMoveSuccessSubscriber = new ROSLIB.Topic({
+  ros : ros,
+  name : '/please_move_success',
   messageType : 'std_msgs/Empty'
 });
 
@@ -210,10 +217,12 @@ var toPleaseMovePage = function() {
   // Set up subscriber to listen for message that
   // obstacle has moved out of the way
   pleaseMoveSuccessSubscriber.subscribe(function(message) {
-    console.log('Received message on ' + pleaseMoveSuccessSubscriber.name + ': ' + message.data);
+    console.log('(!!)Received message on ' + pleaseMoveSuccessSubscriber.name + ': ' + message.data);
     toMovingPage('pleaseMovePage');
     pleaseMoveSuccessSubscriber.unsubscribe();
   });
+
+	console.log('Changing page');
 
   // Hide moving page, show please move page
   document.getElementById("movingPage").style.display = 'none';

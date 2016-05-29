@@ -7,6 +7,7 @@ import json
 import roslib; roslib.load_manifest('odometry')
 import rospy
 import actionlib
+from std_srvs.srv import Empty
 from geometry_msgs.msg import Pose, PoseWithCovarianceStamped, Point, Quaternion, Twist
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from math import pow, sqrt
@@ -26,6 +27,7 @@ class NavTest():
         self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=5)
         self.type = 'P'
         self.location = []
+        self.clear_costmaps = rospy.ServiceProxy('move_base/clear_costmaps', Empty)
         # Subscribe to the move_base action server
         self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
 

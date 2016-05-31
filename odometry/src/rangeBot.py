@@ -63,6 +63,7 @@ def main():
             print currentState
 
         elif currentState == 'Station':
+            # request more balls
             disp = Dispense()
             req_sub = rospy.Subscriber('/request_balls', Empty, callback=refill_balls)
             finish_sub = rospy.Subscriber('/finished', Empty, finish, queue_size=1)
@@ -71,10 +72,9 @@ def main():
             while 1:
                 if currentState != 'Station':
                     break
-
+            disp.bump_sub.unregister()
             req_sub.unregister()
             finish_sub.unregister()
-            # request more balls
         elif currentState == 'MovingToStation':
             # check our status
             if nav.move_base.get_state() == GoalStatus.SUCCEEDED:

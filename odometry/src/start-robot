@@ -16,4 +16,5 @@ rosrun urg_node urg_node scan:=/urg_scan
 // IMPORTANT: Need to run the following command on the robot
 roslaunch rosbridge_server rosbridge_websocket.launch
 
-
+// How to run the servo on the terminial
+rosrun rosserial_python serial_node.py /dev/ttyUSB0

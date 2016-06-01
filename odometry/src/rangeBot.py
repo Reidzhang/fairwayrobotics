@@ -46,8 +46,8 @@ def main():
 
     nav = NavTest()
 
-    currentState = 'MovingToStation'
-    nav.send_to_goal(station_pos)
+    # currentState = 'MovingToStation'
+    # nav.send_to_goal(station_pos)
 
     while (1):
         print 'Current state = ' + currentState
@@ -72,7 +72,6 @@ def main():
             while 1:
                 if currentState != 'Station':
                     break
-            disp.bump_sub.unregister()
             req_sub.unregister()
             finish_sub.unregister()
         elif currentState == 'MovingToStation':

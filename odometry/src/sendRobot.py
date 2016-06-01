@@ -14,7 +14,7 @@ from math import pow, sqrt
 
 class NavTest():
     def __init__(self):
-
+        rospy.init_node('sendRobot', anonymous=True)
         rospy.on_shutdown(self.shutdown)
 
         # Goal state return values
@@ -87,7 +87,7 @@ class NavTest():
 
 
 if __name__ == '__main__':
-    rospy.init_node('sendRobot', anonymous=True)
+    # rospy.init_node('sendRobot', anonymous=True)
     with open('pose-map.json', 'r') as dFile:
         data = json.loads(dFile.read())
     # now we have the data

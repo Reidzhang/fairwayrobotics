@@ -1,20 +1,21 @@
 roslaunch turtlebot_bringup minimal.launch
 
-
 roslaunch turtlebot_navigation amcl_demo.launch map_file:=/home/turtlebot/fairway/fairway_map.yaml
-
-
-roslaunch turtlebot_rviz_launchers view_navigation.launch --screen
-
-
-// start up joystick controller
-roslaunch kobuki_keyop keyop.launch
-
-rosrun urg_node urg_node scan:=/urg_scan
-
 
 // IMPORTANT: Need to run the following command on the robot
 roslaunch rosbridge_server rosbridge_websocket.launch
 
 // How to run the servo on the terminial
 rosrun rosserial_python serial_node.py /dev/ttyUSB0
+
+================== Run the followings on local computer ==================
+
+// start up joystick controller
+roslaunch kobuki_keyop keyop.launch
+
+rosrun urg_node urg_node scan:=/urg_scan
+
+rosrun odometry rangeBot.py
+
+roslaunch turtlebot_rviz_launchers view_navigation.launch --screen
+

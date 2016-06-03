@@ -79,7 +79,10 @@ window.onload = function() {
 
 	for (var i = 0; i < stationButtons.length; i++) {
   	stationButtons[i].addEventListener('click', function() {
-    	toMainPage(this);
+      stationNumber = this.getAttribute('value');
+      basketCount = 0;
+
+    	toMovingPageFromIndex();
   	}, false);
 	}
 
@@ -94,6 +97,10 @@ var addClickListener = function(id, callback) {
   document.getElementById(id).addEventListener('click', callback, false);
 }
 
+var toMovingPageFromIndex = function() {
+  toMovingPage('indexPage');
+}
+
 var toMovingPageFromMain = function() {
   toMovingPage('mainPage');
 }
@@ -106,33 +113,23 @@ var toIndexPageFromAbort = function() {
   toIndexPage('missionAbortPage');
 }
 
-var toMainPage = function(button) {
-	stationNumber = button.getAttribute('value');
-  basketCount = 1;
-
-  // Publish station number selected message
-	var stationLocationMessage = new ROSLIB.Message({
-		data: parseInt(stationNumber)
-	});
-	stationLocationPublisher.publish(stationLocationMessage);    
-  
-  // Set main page text for station number and number baskets used
-  var stationText = document.getElementById('mainStationNumberText');
-  stationText.innerHTML = 'Station ' + stationNumber;
-
-  var basketNumText = document.getElementById('mainBasketCountText');
-  basketNumText.innerHTML = 'Basket ' + "( " + basketCount + " )";
-
-  // Hide index page, show main page
-  document.getElementById("indexPage").style.display = 'none';
-  document.getElementById("mainPage").style.display = 'inline';
-};
-
 var toMovingPage = function(sourcePage) {
   // Publish ball requested message
   if (sourcePage === 'mainPage') {
     var ballRequestMessage = new ROSLIB.Message({});
     ballRequestPublisher.publish(ballRequestMessage);
+  } else if (sourcePage === 'indexPage') {
+    var stationLocationMessage = new ROSLIB.Message({
+      data: parseInt(stationNumber)
+    });
+    stationLocationPublisher.publish(stationLocationMessage); 
+    
+    // Set main page text for station number and number baskets used
+    var stationText = document.getElementById('mainStationNumberText');
+    stationText.innerHTML = 'Station ' + stationNumber;
+
+    var basketNumText = document.getElementById('mainBasketCountText');
+    basketNumText.innerHTML = 'Basket ' + "( " + basketCount + " )";
   }
 
   // Set up subscriber to listen for message that

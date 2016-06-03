@@ -13,7 +13,6 @@ import tf
 
 class Dispense:
     def __init__(self):
-        rospy.init_node('ball_dispence', anonymous=True)
         # callback process sensor data
         self.bump_sub = rospy.Subscriber('/urg_scan', LaserScan, self.processSensor, queue_size=1)
         # connection to laser sensor
@@ -37,7 +36,7 @@ class Dispense:
                 break
 
 if __name__ == '__main__':
-    # rospy.init_node('ball_dispence', anonymous=True)
+    rospy.init_node('ball_dispence', anonymous=True)
     disp = Dispense()
     # keep robot from shutdown
     while 1:

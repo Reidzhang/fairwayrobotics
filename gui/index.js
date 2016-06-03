@@ -3,8 +3,8 @@
 
 var ros = new ROSLIB.Ros({
 	// url : 'ws://loggerhead.cs.washington.edu:9090'
-	url : 'ws://localhost:9090'
-	//url : 'ws://leatherback.cs.washington.edu:9090'
+	// url : 'ws://localhost:9090'
+	url : 'ws://chester.cs.washington.edu:9090'
 });
 
 ros.on('connection', function() {

@@ -14,66 +14,69 @@ from dispense import Dispense
 from actionlib import GoalStatus
 import time
 
-currentState = 'Dispenser'
-weight = 'Empty'
-wLock = threading.Lock()
+currentState = 'Home'
+# weight = 'Empty'
+# wLock = threading.Lock()
 
 
 def main():
     rospy.init_node('rangeBot', anonymous=True)
     global currentState
-    global weight
 
     print 'waiting for mesg'
     msg = rospy.wait_for_message('/choose_station', Int8)
 
-    print 'station num'
-    print msg
-
     # process the location
     locations = processLocations()
 
-    station_pos = locations[msg.data + 1]
-    home = locations[0]
-    dispenser_pos = locations[1]
+    station_pos = locations['station' + str(msg.data)]
+    home = locations['home']
+    dispenser_pos = locations['dispenser']
 
     # TO DO:
     # 1. Send the robot to the station
     # 2. Need to integrate gum ball machine
     # 3. Integrate the scale
     # Another two types of messages: '/finish', '/request_balls'
-    # states = ['Dispenser', 'Station', 'MovingToStation', 'MovingToDispenser', 'Empty', 'Filled', 'Finish']
+    # states = ['Dispenser', 'Station', 'MovingToStation', 'MovingToDispenser', 'Finish']
 
     nav = NavTest()
 
-    # currentState = 'MovingToStation'
-    # nav.send_to_goal(station_pos)
+    currentState = 'MovingToDispenser'
+    nav.send_to_goal(dispenser_pos)
 
     while (1):
         print 'Current state = ' + currentState
         if currentState == 'Dispenser':
-            weightSubscriber = rospy.Subscriber('weight', Float32, callback=processWeight)
-            while wLock.acquire() and weight != 'Filled':
-                wLock.release()
+            print 'At: Dispenser'
+            # weightSubscriber = rospy.Subscriber('weight', Float32, callback=processWeight)
+            # while wLock.acquire() and weight != 'Filled':
+            #     wLock.release()
 
-            rospy.sleep(1)
-            # nav.send_to_goal(station_pos)
+            rospy.sleep(5.0)
             currentState = 'MovingToStation'
-            weightSubscriber.unregister()
-            print currentState
-
+            print 'From: Dispenser -- To: MovingToStation'
+            nav.send_to_goal(station_pos)
+            # weightSubscriber.unregister()
         elif currentState == 'Station':
+            print 'At: Station'
             # request more balls
             disp = Dispense()
-            req_sub = rospy.Subscriber('/request_balls', Empty, callback=refill_balls)
-            finish_sub = rospy.Subscriber('/finished', Empty, finish, queue_size=1)
+            req_sub = rospy.Subscriber('/request_balls', Empty, callback=refill_balls, queue_size=1)
+            finish_sub = rospy.Subscriber('/done', Empty, finish, queue_size=1)
             # tmp_msg = rospy.wait_for_message('/request_balls', Empty)
 
             while 1:
                 if currentState != 'Station':
                     break
+            if currentState == 'Finish':
+                nav.send_to_goal(home)
+            else:
+                nav.send_to_goal(dispenser_pos)
+
             req_sub.unregister()
             finish_sub.unregister()
+            disp.shutDown()
         elif currentState == 'MovingToStation':
             # check our status
             if nav.move_base.get_state() == GoalStatus.SUCCEEDED:
@@ -95,18 +98,23 @@ def main():
             # check our status
             if nav.move_base.get_state() == GoalStatus.SUCCEEDED:
                 currentState = 'Dispenser'
-                weight = 'Empty'
+                # weight = 'Empty'
             elif nav.move_base.get_state() == GoalStatus.ABORTED:
+                print '-- MovingToDispenser Aborted --'
                 res = recoveryPlan(nav, dispenser_pos, home)
                 if res:
                     # recovery success
                     currentState = 'Dispenser'
+                    print 'From: MovingToDispenser -- To: Dispenser'
                 else:
                     currentState = 'Finish'
+                    print 'From: MovingToDispenser -- To: Finish'
             else:
                 continue
         else:
-            # finish
+            if nav.move_base.get_state() == GoalStatus.ABORTED:
+                print "Moving to Home"
+                res = recoveryPlan(nav, dispenser_pos, home)
             break
 
 
@@ -167,17 +175,15 @@ def processLocations():
     # now we have the data
     # we can print out the name
     print "You have the following known locations"
-    locations = dict()
-    i = 0
+    locations = {}
     for key, val in data.items():
         # populate the location Dict
         if 'r' in val.keys():
-            locations[i] = [Pose(Point(val['x'], val['y'], val['z']),
+            locations[key] = [Pose(Point(val['x'], val['y'], val['z']),
                                  Quaternion(val['quatX'], val['quatY'], val['quatZ'], val['quatW'])), val['r']]
         else:
-            locations[i] = [Pose(Point(val['x'], val['y'], val['z']),
+            locations[key] = [Pose(Point(val['x'], val['y'], val['z']),
                                  Quaternion(val['quatX'], val['quatY'], val['quatZ'], val['quatW'])), None]
-        i += 1
 
     return locations
 
@@ -191,13 +197,13 @@ def finish(msg):
     currentState = 'Finish'
 
 
-def processWeight(msg):
-    global weight
-    if msg.data >= 16.2:
-        print 'Basket filled'
-        wLock.acquire()
-        weight = 'Filled'
-        wLock.release()
+# def processWeight(msg):
+#     global weight
+#     if msg.data >= 16.2:
+#         print 'Basket filled'
+#         wLock.acquire()
+#         weight = 'Filled'
+#         wLock.release()
 
 
 if __name__ == '__main__':

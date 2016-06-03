@@ -14,7 +14,7 @@ from math import pow, sqrt
 
 class NavTest():
     def __init__(self):
-        rospy.init_node('sendRobot', anonymous=True)
+        # rospy.init_node('sendRobot', anonymous=True)
         rospy.on_shutdown(self.shutdown)
 
         # Goal state return values

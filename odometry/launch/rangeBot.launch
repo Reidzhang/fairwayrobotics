@@ -1,0 +1,8 @@
+<launch>
+  <include file="$(find turtlebot_bringup)/launch/minimal.launch"> 
+  <include file="$(find turtlebot_navigation)/launch/amcl_demo.launch">
+    <arg name="map_file" value="/home/turtlenot/fairway/fairway_map.yaml">
+  </include>
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
+  <node name="arduino" pkg="rosserial_python" type="serial_node.py" args="/dev/ttyUSB0" >
+</launch>

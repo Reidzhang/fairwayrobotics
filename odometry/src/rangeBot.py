@@ -49,15 +49,18 @@ def main():
         print 'Current state = ' + currentState
         if currentState == 'Dispenser':
             print 'At: Dispenser'
-            # weightSubscriber = rospy.Subscriber('weight', Float32, callback=processWeight)
+            # weightSubscriber = rospy.Subscriber('weight', Float32, callback=processWeight, queue_size=2)
             # while wLock.acquire() and weight != 'Filled':
             #     wLock.release()
+            # while weight != 'Filled':
+            #     pass
 
-            rospy.sleep(5.0)
+            # weightSubscriber.unregister()
+
+            rospy.sleep(2.0)
             currentState = 'MovingToStation'
             print 'From: Dispenser -- To: MovingToStation'
             nav.send_to_goal(station_pos)
-            # weightSubscriber.unregister()
         elif currentState == 'Station':
             print 'At: Station'
             # request more balls
@@ -72,6 +75,9 @@ def main():
             if currentState == 'Finish':
                 nav.send_to_goal(home)
             else:
+                # wLock.acquire()
+                # weight = 'Empty'
+                # wLock.release()
                 nav.send_to_goal(dispenser_pos)
 
             req_sub.unregister()
@@ -82,9 +88,10 @@ def main():
             if nav.move_base.get_state() == GoalStatus.SUCCEEDED:
                 currentState = 'Station'
                 pub = rospy.Publisher('at_station', Empty, queue_size=1)
-                rospy.Rate(5).sleep()
+                rospy.sleep(2)
                 # time.sleep(5)
                 pub.publish(Empty())
+                pub.unregister()
             elif nav.move_base.get_state() == GoalStatus.ABORTED:
                 res = recoveryPlan(nav, station_pos, home)
                 if res:
@@ -92,6 +99,10 @@ def main():
                     currentState = 'Station'
                 else:
                     currentState = 'Finish'
+            elif nav.move_base.get_state() == GoalStatus.LOST:
+                print "message lost"
+                nav.move_base.cancel_goal()
+                nav.move_base.send_goal(station_pos)
             else:
                 continue
         elif currentState == 'MovingToDispenser':
@@ -109,6 +120,10 @@ def main():
                 else:
                     currentState = 'Finish'
                     print 'From: MovingToDispenser -- To: Finish'
+            elif nav.move_base.get_state() == GoalStatus.LOST:
+                print "message lost"
+                nav.move_base.cancel_goal()
+                nav.move_base.send_goal(dispenser_pos)
             else:
                 continue
         else:
@@ -199,7 +214,7 @@ def finish(msg):
 
 # def processWeight(msg):
 #     global weight
-#     if msg.data >= 16.2:
+#     if msg.data >= 3.0:
 #         print 'Basket filled'
 #         wLock.acquire()
 #         weight = 'Filled'

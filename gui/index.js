@@ -80,7 +80,7 @@ window.onload = function() {
 	for (var i = 0; i < stationButtons.length; i++) {
   	stationButtons[i].addEventListener('click', function() {
       stationNumber = this.getAttribute('value');
-      basketCount = 0;
+      basketCount = 1;
 
     	toMovingPageFromIndex();
   	}, false);
@@ -116,13 +116,15 @@ var toIndexPageFromAbort = function() {
 var toMovingPage = function(sourcePage) {
   // Publish ball requested message
   if (sourcePage === 'mainPage') {
+	  basketCount++;
+
     var ballRequestMessage = new ROSLIB.Message({});
     ballRequestPublisher.publish(ballRequestMessage);
   } else if (sourcePage === 'indexPage') {
     var stationLocationMessage = new ROSLIB.Message({
       data: parseInt(stationNumber)
     });
-    stationLocationPublisher.publish(stationLocationMessage); 
+    stationLocationPublisher.publish(stationLocationMessage);
     
     // Set main page text for station number and number baskets used
     var stationText = document.getElementById('mainStationNumberText');
@@ -136,7 +138,6 @@ var toMovingPage = function(sourcePage) {
   // robot is back at station
 	// TO DO: Move it somewhere else
   backToMainSubscriber.subscribe(function(message) {
-    console.log('Received message on ' + backToMainSubscriber.name + ': ' + message.data);
     toMainPageFromMove();
     backToMainSubscriber.unsubscribe();
     pleaseMoveSubscriber.unsubscribe();
@@ -198,9 +199,7 @@ var toIndexPage = function(sourcePage) {
 };
 
 var toMainPageFromMove = function() {
-  // Update number of baskets used
-  basketCount++;
-
+	alert('at main page move');
   // Update main page text to show new number of baskets used
   var basketNumText = document.getElementById('mainBasketCountText');
   basketNumText.innerHTML = 'Basket ' + "( " + basketCount + " )";
@@ -218,8 +217,6 @@ var toPleaseMovePage = function() {
     toMovingPage('pleaseMovePage');
     pleaseMoveSuccessSubscriber.unsubscribe();
   });
-
-	console.log('Changing page');
 
   // Hide moving page, show please move page
   document.getElementById("movingPage").style.display = 'none';
